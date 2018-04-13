@@ -1,7 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <util/atomic.h>
 #include <stdint.h>
 
 #define I2C_ATTINY
@@ -33,19 +32,28 @@
 #define ANALOG_WRITE_MIN 0
 #define ANALOG_WRITE_MAX 255
 
+#ifndef TWI_RX_BUFFER_SIZE
+#define TWI_RX_BUFFER_SIZE (16)
+#endif
+
 #include "pid-attiny.h"
 #include "motor-attiny.h"
 #include "i2c.h"
 #include "pid-i2c.h"
 #include "motor-i2c.h"
 
-#ifndef TWI_RX_BUFFER_SIZE
-#define TWI_RX_BUFFER_SIZE (16)
+// Boolean values
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
 #endif
 
-// Boolean values
-#define FALSE 0
-#define TRUE 1
+// multiplier for mapping int range to analog write range
+static const int16_t MAP_VALUE = ((long)ANALOG_WRITE_MAX - (long)ANALOG_WRITE_MIN) / ((long)MAX_INT - (long)-MAX_INT) + (long)ANALOG_WRITE_MIN;
+// macro to re-range PID plant to analog write range
+#define MAP(v) ((v) - (-MAX_INT) * MAP_VALUE)
 
 typedef struct GLOBAL_FLAGS
 {

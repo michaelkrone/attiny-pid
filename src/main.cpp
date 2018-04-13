@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <util/atomic.h>
 #include <WProgram.h>
 #include "main.h"
 
@@ -25,8 +26,9 @@ volatile int16_t parameterCopy;
  * Set the output from the controller as input
  * to system.
  */
-void setInput(void)
+inline void setInput(void)
 {
+
     int16_t plantValue, measurementValue;
     ATOMIC_BLOCK(ATOMIC_FORCEON)
     {
@@ -34,14 +36,15 @@ void setInput(void)
         measurementValue = pidValues.measurementValue;
     }
 
-    int16_t plant = map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
+    // int16_t plant = map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
+    // int16_t plant = (plantValue - -MAX_INT) * (ANALOG_WRITE_MAX - ANALOG_WRITE_MIN) / (MAX_INT - -MAX_INT) + ANALOG_WRITE_MIN;
     if (plantValue > 0 && measurementValue < ANALOG_READ_MAX)
     {
-        motor_up(plant, &motorData);
+        motor_up(MAP(plantValue), &motorData);
     }
     else if (plantValue < 0 && measurementValue > ANALOG_READ_MIN)
     {
-        motor_down(plant, &motorData);
+        motor_down(MAP(plantValue), &motorData);
     }
     else
     {
@@ -102,12 +105,13 @@ void receiveEvent(uint8_t byteCount)
 
     // read command
     uint8_t len = i2cRead(gFlags.i2cData.command);
+    // check read success
     if (len > 0)
     {
         byteCount -= len;
         gFlags.i2cAction = TRUE;
 
-        // check if a pareter exists for the command
+        // check if a pareter is sent with the command
         if (byteCount >= (sizeof gFlags.i2cData.parameterValue))
         {
             i2cRead(gFlags.i2cData.parameterValue);
@@ -127,7 +131,7 @@ void requestEvent(void)
     i2cWrite(value);
 }
 
-inline void readI2CParameter(void)
+inline void atomicReadI2CParameter(void)
 {
     ATOMIC_BLOCK(ATOMIC_FORCEON)
     {
@@ -180,8 +184,7 @@ void setup(void)
     InitPID();
     InitMotor();
     InitI2C();
-    // enable interrupts
-    sei();
+    sei(); // enable interrupts
 }
 
 void loop(void)
@@ -213,11 +216,8 @@ void loop(void)
 
         case PID_I2C_COMMAND_DISABLE:
         case MOTOR_I2C_COMMAND_STOP:
-            ATOMIC_BLOCK(ATOMIC_FORCEON)
-            {
-                gFlags.pidEnabled = FALSE;
-                motor_stop(&motorData);
-            }
+            gFlags.pidEnabled = FALSE;
+            motor_stop(&motorData);
             break;
 
         case PID_I2C_COMMAND_RESET:
@@ -225,7 +225,7 @@ void loop(void)
             break;
 
         case PID_I2C_COMMAND_SET_VALUE:
-            readI2CParameter();
+            atomicReadI2CParameter();
             if (parameterCopy > ANALOG_READ_MAX)
             {
                 pidValues.referenceValue = ANALOG_READ_MAX;
@@ -242,26 +242,24 @@ void loop(void)
             break;
 
         case PID_I2C_COMMAND_SET_K_P:
-            readI2CParameter();
+            atomicReadI2CParameter();
             pid_Set_P(parameterCopy, &pidData);
             break;
 
         case PID_I2C_COMMAND_SET_K_I:
-            readI2CParameter();
+            atomicReadI2CParameter();
             pid_Set_I(parameterCopy, &pidData);
             break;
 
         case PID_I2C_COMMAND_SET_K_D:
-            readI2CParameter();
+            atomicReadI2CParameter();
             pid_Set_D(parameterCopy, &pidData);
             break;
 
         case MOTOR_I2C_COMMAND_HALT:
-            ATOMIC_BLOCK(ATOMIC_FORCEON)
-            {
-                gFlags.pidEnabled = FALSE;
-                motor_halt(&motorData);
-            }
+            gFlags.pidEnabled = FALSE;
+            motor_halt(&motorData);
+
             break;
         }
 
