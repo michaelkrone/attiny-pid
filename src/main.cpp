@@ -11,7 +11,7 @@ motorConfig_t motorData;
 // Global parameter flags, disable read timer, pid timer, pid enabled and i2c action
 globalFlags_t gFlags = {FALSE, FALSE, FALSE, FALSE};
 // var for copiying volatile parameter values
-int16_t parameterCopy;
+volatile int16_t parameterCopy;
 
 /* Overflow Interrupt Handler called if TCNT0 switches form
  * 255 to 0, approx. every 2ms
