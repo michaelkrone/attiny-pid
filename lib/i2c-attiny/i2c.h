@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <TinyWireS.h>
-#include "i2c-data.h"
+#include "./i2c-data.h"
 
 template <typename T>
 unsigned int i2cWrite(const T &value)

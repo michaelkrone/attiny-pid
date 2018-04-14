@@ -36,11 +36,11 @@
 #define TWI_RX_BUFFER_SIZE (16)
 #endif
 
-#include "pid-attiny.h"
-#include "motor-attiny.h"
-#include "i2c.h"
-#include "pid-i2c.h"
-#include "motor-i2c.h"
+#include "../lib/pid-attiny/pid-attiny.h"
+#include "../lib/motor-attiny/motor-attiny.h"
+#include "../lib/i2c-attiny/i2c.h"
+#include "../lib/pid-i2c/pid-i2c.h"
+#include "../lib/motor-i2c/motor-i2c.h"
 
 // Boolean values
 #ifndef FALSE

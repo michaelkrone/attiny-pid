@@ -1,5 +1,5 @@
 #include <wiring.h>
-#include "motor-attiny.h"
+#include "./motor-attiny.h"
 
 /* Initialisation of motor controller parameters.*/
 void motor_Init(uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data)

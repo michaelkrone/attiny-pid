@@ -1,4 +1,4 @@
-#include "pid-attiny.h"
+#include "./pid-attiny.h"
 
 /* Initialisation of PID controller parameters.
  *

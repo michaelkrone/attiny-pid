@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <util/atomic.h>
 #include <WProgram.h>
-#include "main.h"
+#include "./main.h"
 
 // Parameters for PID regulator
 pidData_t pidData;
