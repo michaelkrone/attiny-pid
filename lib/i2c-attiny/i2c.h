@@ -18,7 +18,7 @@ unsigned int i2cWrite(const T &value)
 }
 
 template <typename T>
-unsigned int i2cRead(T &value)
+unsigned int i2cRead(T &value, bool readAll = false)
 {
 	uint8_t *p = (uint8_t *)&value;
 	unsigned int i;
@@ -26,6 +26,13 @@ unsigned int i2cRead(T &value)
 	{
 		*p++ = TinyWireS.receive();
 	}
+
+	// read any bytes to not block or run in timeout
+	while (readAll && TinyWireS.available())
+	{
+		TinyWireS.receive();
+	}
+
 	return i;
 }
 

@@ -9,24 +9,15 @@ pidData_t pidData;
 pidValues_t pidValues;
 // motor driver config
 motorConfig_t motorData;
-// Global parameter flags, pid timer, pid enabled and i2c action
+// Global parameter flags, pid timer, pid enabled, i2c action and read mode permanent
 globalFlags_t gFlags = {FALSE, FALSE, FALSE};
-// var for copiying volatile parameter values
-volatile int16_t parameterCopy, i2cCommand;
-
-/* Overflow Interrupt Handler called if TCNT0 switches form
- * 255 to 0, approx. every 2ms
- */
-#ifndef TIMER0_OVF_vect
-#define TIMER0_OVF_vect TIMER0_OVF0_vect
-#endif
 
 /**
  * Map max int value to analog write resolution
  */
 inline long plantMap(int16_t plant)
 {
-    map(plant, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
+    return map(plant, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
 }
 
 /* Set control input to system
@@ -71,6 +62,13 @@ inline uint16_t readSignal(void)
     return (ADCH << 8 | adcLoByte); // add lobyte and hibyte
 }
 
+/* Overflow Interrupt Handler called if TCNT0 switches form
+ * 255 to 0, approx. every 2ms
+ */
+#ifndef TIMER0_OVF_vect
+#define TIMER0_OVF_vect TIMER0_OVF0_vect
+#endif
+
 /* Timer interrupt to control the sampling interval
  */
 ISR(TIMER0_OVF_vect)
@@ -111,7 +109,7 @@ void receiveEvent(uint8_t byteCount)
         // check if a pareter is sent with the command
         if (byteCount >= (sizeof gFlags.i2cData.parameterValue))
         {
-            i2cRead(gFlags.i2cData.parameterValue);
+            i2cRead(gFlags.i2cData.parameterValue, true);
         }
     }
 }
@@ -124,7 +122,8 @@ void receiveEvent(uint8_t byteCount)
  */
 void requestEvent(void)
 {
-    i2cWrite(readSignal());
+    // i2cWrite(readSignal());
+    i2cWrite(pidValues.measurementValue);
 }
 
 /* Init of PID controller demo
@@ -176,8 +175,9 @@ void setup(void)
 
 void loop(void)
 {
-    // Chek for I2C receive message
-    TinyWireS_stop_check();
+    // var for copiying volatile parameter values
+    static volatile int16_t parameterCopy;
+    static volatile uint8_t i2cCommand;
 
     // Run PID calculations once every PID timer timeout
     if (gFlags.pidTimer == TRUE)
@@ -192,8 +192,12 @@ void loop(void)
             pid_Controller(&pidValues, &pidData);
             setInput();
         }
+
         gFlags.pidTimer = FALSE;
     }
+
+    // Chek for I2C receive message
+    TinyWireS_stop_check();
 
     // Process I2C Commands
     if (gFlags.i2cAction)
