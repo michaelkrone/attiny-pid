@@ -15,7 +15,11 @@
 	},
 	"dependencies": [
 		{
-        		"name": "TinyWireSio"
+			"name": "TinyWireSio"
 		}
-	]
+	],
+	"export": {
+		"include": ["lib/*.[ch]", "lib/*.[ch]pp"],
+		"exclude": ["src/*"]
+	}
 }
