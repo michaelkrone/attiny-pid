@@ -26,7 +26,7 @@ volatile int16_t parameterCopy, i2cCommand;
  */
 inline long plantMap(int16_t plant)
 {
-    return 0; //map(plant, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
+    map(plant, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
 }
 
 /* Set control input to system
