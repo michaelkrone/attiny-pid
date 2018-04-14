@@ -15,7 +15,7 @@
  * With a 8-bit counter (255 cylces to overflow), the time interval value is calculated as follows:
  * PID_TIME_INTERVAL = ( desired interval [sec] ) * ( frequency [Hz] ) / 255
  */
-#define PID_TIME_INTERVAL 80
+#define PID_TIME_INTERVAL 100
 
 /* P, I and D parameter values
  * The K_P_DEFAULT, K_I_DEFAULT and K_D_DEFAULT values (P, I and D gains)
@@ -50,18 +50,16 @@
 #define TRUE 1
 #endif
 
-// multiplier for mapping int range to analog write range
-static const int16_t MAP_VALUE = ((long)ANALOG_WRITE_MAX - (long)ANALOG_WRITE_MIN) / ((long)MAX_INT - (long)-MAX_INT) + (long)ANALOG_WRITE_MIN;
-// macro to re-range PID plant to analog write range
-#define MAP(v) ((v) - (-MAX_INT) * MAP_VALUE)
-
 typedef struct GLOBAL_FLAGS
 {
-	// True when PID control loop should run one time
+	// TRUE when PID control loop should run one time (update measure value)
 	volatile uint8_t pidTimer : 1;
+	// TRUE when PID is enabled
 	volatile uint8_t pidEnabled : 1;
+	// TRUE if an I2C Action is triggered
 	volatile uint8_t i2cAction : 1;
 	uint8_t dummy : 5;
+	// I2C parameter value and command
 	i2cData_t i2cData;
 } globalFlags_t;
 

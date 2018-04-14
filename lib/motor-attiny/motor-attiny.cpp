@@ -1,4 +1,4 @@
-#include <WProgram.h>
+#include <wiring.h>
 #include "motor-attiny.h"
 
 /* Initialisation of motor controller parameters.*/
@@ -42,7 +42,7 @@ void motor_halt(struct MOTOR_DATA *data)
 	motor_set_downPin(ANALOG_WRITE_MAX, data);
 }
 
-inline void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE)
+inline void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force)
 {
 	if (force == TRUE || value != data->upValue)
 	{
@@ -51,7 +51,7 @@ inline void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force =
 	}
 }
 
-inline void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE)
+inline void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force)
 {
 	if (force == TRUE || value != data->downValue)
 	{

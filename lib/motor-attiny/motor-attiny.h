@@ -21,21 +21,22 @@
 
 typedef struct MOTOR_DATA
 {
-	// the set point value
+	// the up control pin
 	uint8_t upPin;
-	// the current state
+	// the down control pin
 	uint8_t downPin;
-	// the set point value
+	// cache up value
 	uint8_t upValue;
-	// the current state
+	// cache down value
 	uint8_t downValue;
 } motorConfig_t;
 
 void motor_Init(uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data);
 void motor_up(uint8_t speed, struct MOTOR_DATA *data);
 void motor_down(uint8_t speed, struct MOTOR_DATA *data);
-void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force = false);
-void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force = false);
+void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE);
+void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE);
 void motor_stop(struct MOTOR_DATA *data);
 void motor_halt(struct MOTOR_DATA *data);
+
 #endif

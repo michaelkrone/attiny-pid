@@ -9,10 +9,10 @@ pidData_t pidData;
 pidValues_t pidValues;
 // motor driver config
 motorConfig_t motorData;
-// Global parameter flags, disable read timer, pid timer, pid enabled and i2c action
-globalFlags_t gFlags = {FALSE, FALSE, FALSE, FALSE};
+// Global parameter flags, pid timer, pid enabled and i2c action
+globalFlags_t gFlags = {FALSE, FALSE, FALSE};
 // var for copiying volatile parameter values
-volatile int16_t parameterCopy;
+volatile int16_t parameterCopy, i2cCommand;
 
 /* Overflow Interrupt Handler called if TCNT0 switches form
  * 255 to 0, approx. every 2ms
@@ -21,6 +21,14 @@ volatile int16_t parameterCopy;
 #define TIMER0_OVF_vect TIMER0_OVF0_vect
 #endif
 
+/**
+ * Map max int value to analog write resolution
+ */
+inline long plantMap(int16_t plant)
+{
+    return 0; //map(plant, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
+}
+
 /* Set control input to system
  *
  * Set the output from the controller as input
@@ -28,7 +36,6 @@ volatile int16_t parameterCopy;
  */
 inline void setInput(void)
 {
-
     int16_t plantValue, measurementValue;
     ATOMIC_BLOCK(ATOMIC_FORCEON)
     {
@@ -36,15 +43,13 @@ inline void setInput(void)
         measurementValue = pidValues.measurementValue;
     }
 
-    // int16_t plant = map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX);
-    // int16_t plant = (plantValue - -MAX_INT) * (ANALOG_WRITE_MAX - ANALOG_WRITE_MIN) / (MAX_INT - -MAX_INT) + ANALOG_WRITE_MIN;
     if (plantValue > 0 && measurementValue < ANALOG_READ_MAX)
     {
-        motor_up(MAP(plantValue), &motorData);
+        motor_up((int16_t)plantMap(plantValue), &motorData);
     }
     else if (plantValue < 0 && measurementValue > ANALOG_READ_MIN)
     {
-        motor_down(MAP(plantValue), &motorData);
+        motor_down((int16_t)plantMap(plantValue), &motorData);
     }
     else
     {
@@ -71,21 +76,14 @@ inline uint16_t readSignal(void)
 ISR(TIMER0_OVF_vect)
 {
     volatile static uint16_t doPid = 0;
-    if (gFlags.pidEnabled == FALSE)
+    if (doPid < PID_TIME_INTERVAL)
     {
-        doPid = 0;
+        doPid++;
     }
     else
     {
-        if (doPid < PID_TIME_INTERVAL)
-        {
-            doPid++;
-        }
-        else
-        {
-            gFlags.pidTimer = TRUE;
-            doPid = 0;
-        }
+        gFlags.pidTimer = TRUE;
+        doPid = 0;
     }
 }
 
@@ -110,7 +108,6 @@ void receiveEvent(uint8_t byteCount)
     {
         byteCount -= len;
         gFlags.i2cAction = TRUE;
-
         // check if a pareter is sent with the command
         if (byteCount >= (sizeof gFlags.i2cData.parameterValue))
         {
@@ -127,23 +124,13 @@ void receiveEvent(uint8_t byteCount)
  */
 void requestEvent(void)
 {
-    int16_t value = readSignal();
-    i2cWrite(value);
-}
-
-inline void atomicReadI2CParameter(void)
-{
-    ATOMIC_BLOCK(ATOMIC_FORCEON)
-    {
-        parameterCopy = gFlags.i2cData.parameterValue;
-    }
+    i2cWrite(readSignal());
 }
 
 /* Init of PID controller demo
  */
-void InitPID(void)
+void initPID(void)
 {
-
     pid_Init(K_P_DEFAULT, K_I_DEFAULT, K_D_DEFAULT, &pidData, &pidValues);
 
     ADMUX =
@@ -165,12 +152,12 @@ void InitPID(void)
     TCNT0 = 0;
 }
 
-void InitMotor(void)
+void initMotor(void)
 {
     motor_Init(PIN_MOTOR_UP, PIN_MOTOR_DOWN, &motorData);
 }
 
-void InitI2C(void)
+void initI2C(void)
 {
     TinyWireS.begin(I2C_SLAVE_ADDRESS);
     TinyWireS.onReceive(receiveEvent);
@@ -181,32 +168,43 @@ void InitI2C(void)
  */
 void setup(void)
 {
-    InitPID();
-    InitMotor();
-    InitI2C();
+    initPID();
+    initMotor();
+    initI2C();
     sei(); // enable interrupts
 }
 
 void loop(void)
 {
+    // Chek for I2C receive message
     TinyWireS_stop_check();
 
     // Run PID calculations once every PID timer timeout
-    if (gFlags.pidEnabled == TRUE && gFlags.pidTimer == TRUE)
+    if (gFlags.pidTimer == TRUE)
     {
         ATOMIC_BLOCK(ATOMIC_FORCEON)
         {
             pidValues.measurementValue = readSignal();
         }
-        pid_Controller(&pidValues, &pidData);
-        setInput();
+
+        if (gFlags.pidEnabled == TRUE)
+        {
+            pid_Controller(&pidValues, &pidData);
+            setInput();
+        }
         gFlags.pidTimer = FALSE;
     }
 
     // Process I2C Commands
     if (gFlags.i2cAction)
     {
-        switch (gFlags.i2cData.command)
+        ATOMIC_BLOCK(ATOMIC_FORCEON)
+        {
+            i2cCommand = gFlags.i2cData.command;
+            parameterCopy = gFlags.i2cData.parameterValue;
+        }
+
+        switch (i2cCommand)
         {
 
         case PID_I2C_COMMAND_ENABLE:
@@ -225,7 +223,6 @@ void loop(void)
             break;
 
         case PID_I2C_COMMAND_SET_VALUE:
-            atomicReadI2CParameter();
             if (parameterCopy > ANALOG_READ_MAX)
             {
                 pidValues.referenceValue = ANALOG_READ_MAX;
@@ -242,24 +239,20 @@ void loop(void)
             break;
 
         case PID_I2C_COMMAND_SET_K_P:
-            atomicReadI2CParameter();
             pid_Set_P(parameterCopy, &pidData);
             break;
 
         case PID_I2C_COMMAND_SET_K_I:
-            atomicReadI2CParameter();
             pid_Set_I(parameterCopy, &pidData);
             break;
 
         case PID_I2C_COMMAND_SET_K_D:
-            atomicReadI2CParameter();
             pid_Set_D(parameterCopy, &pidData);
             break;
 
         case MOTOR_I2C_COMMAND_HALT:
             gFlags.pidEnabled = FALSE;
             motor_halt(&motorData);
-
             break;
         }
 
