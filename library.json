@@ -12,5 +12,8 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/michaelkrone/attiny-pid/attiny-pid.git"
-	}
+	},
+	"dependencies": [    {
+        "name": "TinyWireSio"
+    }
 }
