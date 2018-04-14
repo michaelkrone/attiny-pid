@@ -1,6 +1,8 @@
 #ifndef I2C_H
 #define I2C_H
 
+#ifdef I2C_ATTINY
+
 #include <stdint.h>
 #include <TinyWireS.h>
 #include "./i2c-data.h"
@@ -35,5 +37,6 @@ unsigned int i2cRead(T &value, bool readAll = false)
 
 	return i;
 }
+#endif
 
 #endif

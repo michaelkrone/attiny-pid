@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 #define I2C_ATTINY
+
+#ifdef I2C_ATTINY
 #define I2C_SLAVE_ADDRESS 0x4 // the 7-bit I2C slave address
 
 // PIN_PID_READ default = A3
@@ -63,4 +65,5 @@ typedef struct GLOBAL_FLAGS
 	i2cData_t i2cData;
 } globalFlags_t;
 
+#endif
 #endif

@@ -1,7 +1,10 @@
-#include <avr/io.h>
-#include <util/atomic.h>
+
 #include <WProgram.h>
 #include "./main.h"
+
+#ifdef I2C_ATTINY
+#include <util/atomic.h>
+#include <avr/io.h>
 
 // Parameters for PID regulator
 pidData_t pidData;
@@ -263,3 +266,4 @@ void loop(void)
         gFlags.i2cAction = FALSE;
     }
 }
+#endif
