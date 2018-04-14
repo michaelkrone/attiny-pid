@@ -1,0 +1,16 @@
+{
+	"name": "ATTinyPID",
+	"frameworks": "Arduino",
+	"keywords": "I2C, PID,  Attiny",
+	"description": "I2C controllable PID controller for Attiny85",
+	"authors": [
+		{
+			"name": "Michael Krone",
+			"url": "https://github.com/michaelkrone/attiny-pid"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/michaelkrone/attiny-pid/attiny-pid.git"
+	}
+}
