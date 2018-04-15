@@ -2,6 +2,7 @@
 #define MOTOR_ATTINY_H
 
 #include <stdint.h>
+#include <wiring.h>
 
 #ifndef ANALOG_WRITE_MIN
 #define ANALOG_WRITE_MIN 0

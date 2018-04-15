@@ -1,4 +1,3 @@
-#include <wiring.h>
 #include "./motor-attiny.h"
 
 /* Initialisation of motor controller parameters.*/

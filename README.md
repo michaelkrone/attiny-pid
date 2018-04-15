@@ -2,14 +2,14 @@
 
 This library provides an I2C controllable ATTiny85 PID contrller.
 
-Olimex85 Pinout:
+Olimexino85 Pinout:
 
 ```
 SCL = 2
-SCD = 0
-MOTOR_UP=1
-MOTOR_DOWN=4
-SIGNAL_READ=3
+SDA = 0
+MOTOR_UP = 1
+MOTOR_DOWN = 4
+SIGNAL_READ = 3
 ```
 
 The following I2C commands are supported:

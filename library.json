@@ -1,7 +1,7 @@
 {
-	"name": "ATTinyPID",
+	"name": "ATTiny85PID",
 	"frameworks": "Arduino",
-	"keywords": "I2C, PID,  Attiny",
+	"keywords": "I2C, PID, Attiny85",
 	"description": "I2C controllable PID controller for Attiny85",
 	"authors": [
 		{
@@ -13,7 +13,12 @@
 		"type": "git",
 		"url": "https://github.com/michaelkrone/attiny-pid/attiny-pid.git"
 	},
-	"dependencies": [    {
-        "name": "TinyWireSio"
-    }
+	"dependencies": [
+		{
+			"name": "TinyWireSio"
+		}
+	],
+	"export": {
+		"include": ["lib/*"]
+	}
 }
