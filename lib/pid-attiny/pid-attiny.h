@@ -2,7 +2,7 @@
 #define PID_H
 
 #ifndef PID_SCALING_FACTOR
-#define PID_SCALING_FACTOR (128)
+#define PID_SCALING_FACTOR 128
 #endif
 
 #include <stdint.h>

@@ -7,9 +7,9 @@ Olimexino85 Pinout:
 ```
 SCL = 2
 SDA = 0
-MOTOR_UP = 1
-MOTOR_DOWN = 4
-SIGNAL_READ = 3
+MOTOR_UP = 1 (PB1)
+MOTOR_DOWN = 4 (PB4)
+SIGNAL_READ = 3 (A3)
 ```
 
 The following I2C commands are supported:

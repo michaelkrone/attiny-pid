@@ -37,9 +37,8 @@ void pid_Controller(struct PID_VALUES *pid_values, struct PID_DATA *pid_st)
 	int16_t error, p_term, d_term;
 	int32_t i_term, ret, temp;
 
-	error = referenceValue - measurementValue;
-
 	// Calculate Pterm and limit error overflow
+	error = referenceValue - measurementValue;
 	if (error > pid_st->maxError)
 	{
 		p_term = MAX_INT;
@@ -73,7 +72,6 @@ void pid_Controller(struct PID_VALUES *pid_values, struct PID_DATA *pid_st)
 
 	// Calculate Dterm
 	d_term = pid_st->D_Factor * (pid_st->lastProcessValue - measurementValue);
-
 	pid_st->lastProcessValue = measurementValue;
 
 	ret = (p_term + i_term + d_term) / PID_SCALING_FACTOR;

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #ifndef MOTOR_I2C_COMMAND_ADDRESS
-static const uint8_t MOTOR_I2C_COMMAND_ADDRESS = 0x0F;
+#define MOTOR_I2C_COMMAND_ADDRESS 0x04
 #endif
 
 // available I2C commands

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #ifndef PID_I2C_COMMAND_ADDRESS
-static const uint8_t PID_I2C_COMMAND_ADDRESS = 0x01;
+#define PID_I2C_COMMAND_ADDRESS 0x0F
 #endif
 
 // available I2C commands
