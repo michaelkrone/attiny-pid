@@ -57,7 +57,11 @@ typedef struct GLOBAL_FLAGS
 	volatile uint8_t pidEnabled : 1;
 	// TRUE if an I2C Action is triggered
 	volatile uint8_t i2cAction : 1;
-	uint8_t dummy : 5;
+	// TRUE if an I2C read request is triggered
+	volatile uint8_t sendValue : 1;
+	// cache read pid value mode
+	volatile uint8_t readMode : 2;
+	uint8_t dummy : 2;
 	// I2C parameter value and command
 	i2cData_t i2cData;
 } globalFlags_t;

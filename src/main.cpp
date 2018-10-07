@@ -12,7 +12,7 @@ pidValues_t pidValues;
 // motor driver config
 motorConfig_t motorData;
 // Global parameter flags, pid timer, pid enabled, i2c action and read mode permanent
-globalFlags_t gFlags = {TRUE, TRUE, FALSE};
+globalFlags_t gFlags = {TRUE, TRUE, FALSE, FALSE, PID_I2C_READ_MEASUREMENT_VALUE};
 
 /* Set control input to system
  *
@@ -120,9 +120,7 @@ void receiveEvent(uint8_t byteCount)
  */
 void requestEvent(void)
 {
-    // i2cWrite((int16_t)map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX));
-    i2cWrite(pidValues.plantValue);
-    // i2cWrite(pidValues.measurementValue);
+    gFlags.sendValue = TRUE;
 }
 
 /* Init I2C communication callback hanlders
@@ -197,6 +195,24 @@ void loop(void)
         gFlags.pidTimer = FALSE;
     }
 
+    // Process I2C read requests
+    if (gFlags.sendValue == TRUE)
+    {
+        switch (gFlags.readMode)
+        {
+        case PID_I2C_READ_MEASUREMENT_VALUE:
+            i2cWrite(pidValues.measurementValue);
+            break;
+        case PID_I2C_READ_PLANT_VALUE:
+            i2cWrite(pidValues.plantValue);
+            break;
+        case PID_I2C_READ_REFERENCE_VALUE:
+            i2cWrite(pidValues.referenceValue);
+            break;
+        }
+        gFlags.sendValue = FALSE;
+    }
+
     // Chek for I2C receive message
     TinyWireS_stop_check();
 
@@ -253,6 +269,10 @@ void loop(void)
 
         case PID_I2C_COMMAND_SET_K_D:
             pid_Set_D(parameterCopy, &pidData);
+            break;
+
+        case PID_I2C_COMMAND_SET_READ_MODE:
+            gFlags.readMode = parameterCopy;
             break;
 
         case MOTOR_I2C_COMMAND_HALT:
