@@ -15,7 +15,7 @@
  * With a 8-bit counter (255 cylces to overflow), the time interval value is calculated as follows:
  * PID_TIME_INTERVAL = ( desired interval [sec] ) * ( frequency [Hz] ) / 255
  */
-#define PID_TIME_INTERVAL 60
+#define PID_TIME_INTERVAL 50
 
 /* P, I and D parameter values
  * The K_P_DEFAULT, K_I_DEFAULT and K_D_DEFAULT values (P, I and D gains)

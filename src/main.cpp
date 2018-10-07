@@ -37,7 +37,7 @@ inline void setInput(void)
     else if (plantValue < 0 && measurementValue > ANALOG_READ_MIN)
     {
         motor_down(
-            (int16_t)map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
+            (int16_t)map(-plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
             &motorData);
     }
     else
@@ -113,7 +113,7 @@ void receiveEvent(uint8_t byteCount)
 }
 
 /**
- * The I2C data reque st handler
+ * The I2C data request handler
  *
  * This needs to complete before the next incoming transaction (start, data, restart/stop) on the bus does
  * so be quick, set flags for long running tasks to be called from the mainloop instead of running them directly,
@@ -123,6 +123,15 @@ void requestEvent(void)
     // i2cWrite((int16_t)map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX));
     i2cWrite(pidValues.plantValue);
     // i2cWrite(pidValues.measurementValue);
+}
+
+/* Init I2C communication callback hanlders
+ */
+void initI2C(void)
+{
+    TinyWireS.begin(I2C_SLAVE_ADDRESS);
+    TinyWireS.onReceive(receiveEvent);
+    TinyWireS.onRequest(requestEvent);
 }
 
 /* Init of PID controller demo
@@ -153,13 +162,6 @@ void initPID(void)
 void initMotor(void)
 {
     motor_Init(PIN_MOTOR_UP, PIN_MOTOR_DOWN, &motorData);
-}
-
-void initI2C(void)
-{
-    TinyWireS.begin(I2C_SLAVE_ADDRESS);
-    TinyWireS.onReceive(receiveEvent);
-    TinyWireS.onRequest(requestEvent);
 }
 
 /*  PID controller
