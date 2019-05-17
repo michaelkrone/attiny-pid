@@ -4,6 +4,7 @@
 
 #include <util/atomic.h>
 #include <avr/io.h>
+#include <ToneTimer.h>
 
 // Parameters for PID regulator
 pidData_t pidData;
@@ -31,13 +32,13 @@ inline void setInput(void)
     if (plantValue > 0 && measurementValue < ANALOG_READ_MAX)
     {
         motor_up(
-            (int16_t)map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
+            (int16_t)map(plantValue, 0, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
             &motorData);
     }
     else if (plantValue < 0 && measurementValue > ANALOG_READ_MIN)
     {
         motor_down(
-            (int16_t)map(-plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
+            (int16_t)map(-1 * plantValue, 0, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
             &motorData);
     }
     else
@@ -151,15 +152,21 @@ void initPID(void)
         (1 << ADPS1) | // set prescaler to 128, bit 1
         (0 << ADPS0);  // set prescaler to 128, bit 0
 
-    // Set up timer, enable timer/counter 0 overflow interrupt
+    // Set up timer0, enable timer/counter 0 overflow interrupt
     TCCR0A = (1 << CS00);
     TIMSK |= (1 << TOIE0);
     TCNT0 = 0;
+
+    ToneTimer_ClockSelect(Timer0_Prescale_Value_1024);
+
+    // Set up timer1; freq, pins
+    //TCCR0A = (1 << CS00);
+    //TCNT0 = 0;
 }
 
 void initMotor(void)
 {
-    motor_Init(PIN_MOTOR_UP, PIN_MOTOR_DOWN, &motorData);
+    motor_Init(PIN_MOTOR_SPEED, PIN_MOTOR_UP, PIN_MOTOR_DOWN, &motorData);
 }
 
 /*  PID controller
