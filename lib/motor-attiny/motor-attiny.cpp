@@ -1,5 +1,6 @@
 #include "./motor-attiny.h"
 
+#ifndef USE_THREE_PINS
 /* Initialisation of motor controller parameters.*/
 void motor_Init(uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data)
 {
@@ -12,7 +13,58 @@ void motor_Init(uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data)
 	motor_set_upPin(LOW, data, TRUE);
 	motor_set_downPin(LOW, data, TRUE);
 }
+inline void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force)
+{
+	if (force == TRUE || value != data->upValue)
+	{
+		analogWrite(data->upPin, value);
+		data->upValue = value;
+	}
+}
 
+inline void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force)
+{
+	if (force == TRUE || value != data->downValue)
+	{
+		analogWrite(data->downPin, value);
+		data->downValue = value;
+	}
+}
+#else
+/* Initialisation of motor controller parameters.*/
+void motor_Init(uint8_t speedPin, uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data)
+{
+	// reset values struct for convinience
+	data->speedPin = speedPin;
+	data->upPin = upPin;
+	data->downPin = downPin;
+	pinMode(data->speedPin, OUTPUT);
+	pinMode(data->upPin, OUTPUT);
+	pinMode(data->downPin, OUTPUT);
+	// force stoping the motor and set structs up/down values
+	motor_set_upPin(LOW, data, TRUE);
+	motor_set_downPin(LOW, data, TRUE);
+}
+inline void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force)
+{
+	if (force == TRUE || value != data->upValue)
+	{
+		analogWrite(data->speedPin, value);
+		data->upValue = value;
+		digitalWrite(data->upPin, value > 0 ? HIGH : LOW);
+	}
+}
+
+inline void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force)
+{
+	if (force == TRUE || value != data->downValue)
+	{
+		analogWrite(data->speedPin, value);
+		data->downValue = value;
+		digitalWrite(data->downPin, value > 0 ? HIGH : LOW);
+	}
+}
+#endif
 /* Control motor up.*/
 void motor_up(uint8_t speed, struct MOTOR_DATA *data)
 {
@@ -39,22 +91,4 @@ void motor_halt(struct MOTOR_DATA *data)
 {
 	motor_set_upPin(ANALOG_WRITE_MAX, data);
 	motor_set_downPin(ANALOG_WRITE_MAX, data);
-}
-
-inline void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force)
-{
-	if (force == TRUE || value != data->upValue)
-	{
-		analogWrite(data->upPin, value);
-		data->upValue = value;
-	}
-}
-
-inline void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force)
-{
-	if (force == TRUE || value != data->downValue)
-	{
-		analogWrite(data->downPin, value);
-		data->downValue = value;
-	}
 }
