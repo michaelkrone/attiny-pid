@@ -118,3 +118,9 @@ void pid_Set_D(int16_t d, pidData_t *pid_st)
 	pid_st->D_Factor = d * PID_SCALING_FACTOR;
 	pid_Reset_Integrator(pid_st);
 }
+
+void pid_Set_deadBand(uint16_t d, pidData_t *pid_st)
+{
+	pid_st->deadBand = d;
+	pid_Reset_Integrator(pid_st);
+}
