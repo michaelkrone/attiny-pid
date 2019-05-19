@@ -7,13 +7,13 @@ This library provides an I2C controllable ATTiny85 PID controller.
 |----------|------|-------------|----------|
 | SCL | PB2 | 7 | 2 |
 | SDA | PB0 | 5 | 0 |
-| MOTOR_UP | PB1[^1] | 6 | 1 |
-| MOTOR_DOWN | PB4[^2] | 3 | 4 |
+| MOTOR_UP | PB1<sup>1</sup> | 6 | 1 |
+| MOTOR_DOWN | PB4<sup>2</sup> | 3 | 4 |
 | SIGNAL_READ | A3 | 2 | 3 |
 
-[^1]: PWM on timer 0
+<sup>1</sup>PWM on timer 0; ~500 Hz
 
-[^2]: PWM on timer 1
+<sup>2</sup>PWM on timer 1; ~1000Hz
 
 ### Three pin control
 | Function | Name | ATTiny85 | Olimexino85 |
@@ -22,8 +22,10 @@ This library provides an I2C controllable ATTiny85 PID controller.
 | SDA | PB0 | 5 | 0 |
 | MOTOR_UP | PB5/#RESET | 1 | #RST |
 | MOTOR_DOWN | PB4 | 3 | 4 |
-| MOTOR_SPEED | PB1* | 6 | 1 |
+| MOTOR_SPEED | PB1<sup>1</sup> | 6 | 1 |
 | SIGNAL_READ | A3 | 2 | 3 |
+
+<sup>1</sup>PWM on timer 0; ~500 Hz
 
 The following I2C commands are supported:
 
