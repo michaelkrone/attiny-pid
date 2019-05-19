@@ -1,20 +1,35 @@
 # ATTiny85 PID Controller
 
-This library provides an I2C controllable ATTiny85 PID contrller.
+This library provides an I2C controllable ATTiny85 PID controller.
 
-Olimexino85 Pinout:
+### Two pin control
+| Function | Name | ATTiny85 | Olimexino85 |
+|----------|------|-------------|----------|
+| SCL | PB2 | 7 | 2 |
+| SDA | PB0 | 5 | 0 |
+| MOTOR_UP | PB1[^1] | 6 | 1 |
+| MOTOR_DOWN | PB4[^2] | 3 | 4 |
+| SIGNAL_READ | A3 | 2 | 3 |
 
-```
-SCL = 2
-SDA = 0
-MOTOR_UP = 1 (PB1)
-MOTOR_DOWN = 4 (PB4)
-SIGNAL_READ = 3 (A3)
-```
+[^1]: PWM on timer 0
+
+[^2]: PWM on timer 1
+
+### Three pin control
+| Function | Name | ATTiny85 | Olimexino85 |
+|----------|------|----------|-------------|
+| SCL | PB2 | 7 | 2 |
+| SDA | PB0 | 5 | 0 |
+| MOTOR_UP | PB5/#RESET | 1 | #RST |
+| MOTOR_DOWN | PB4 | 3 | 4 |
+| MOTOR_SPEED | PB1* | 6 | 1 |
+| SIGNAL_READ | A3 | 2 | 3 |
 
 The following I2C commands are supported:
 
 ```
+	MOTOR_I2C_COMMAND_STOP
+	MOTOR_I2C_COMMAND_HALT
 	PID_I2C_COMMAND_ENABLE
 	PID_I2C_COMMAND_DISABLE
 	PID_I2C_COMMAND_RESET
@@ -22,8 +37,7 @@ The following I2C commands are supported:
 	PID_I2C_COMMAND_SET_K_P
 	PID_I2C_COMMAND_SET_K_I
 	PID_I2C_COMMAND_SET_K_D
-	MOTOR_I2C_COMMAND_STOP
-	MOTOR_I2C_COMMAND_HALT
+	PID_I2C_COMMAND_SET_DEAD_BAND
 ```
 
 Reading the measurement value:
