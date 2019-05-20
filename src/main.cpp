@@ -282,6 +282,10 @@ void loop(void)
             gFlags.readMode = parameterCopy;
             break;
 
+        case PID_I2C_COMMAND_SET_DEAD_BAND:
+            pid_Set_deadBand(parameterCopy, &pidData);
+            break;
+
         case MOTOR_I2C_COMMAND_HALT:
             gFlags.pidEnabled = FALSE;
             motor_halt(&motorData);
