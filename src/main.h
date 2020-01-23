@@ -16,15 +16,29 @@
  * With a 8-bit counter (255 cylces to overflow), the time interval value is calculated as follows:
  * PID_TIME_INTERVAL = ( desired interval [sec] ) * ( frequency [Hz] ) / 255
  */
-#define PID_TIME_INTERVAL 3
+
+//#define PID_TIME_INTERVAL (uint16_t)3200
+//#define TIMER_PRESCALE Timer0_Prescale_Value_1
+
+#define PID_TIME_INTERVAL (uint16_t)400
+#define TIMER_PRESCALE Timer0_Prescale_Value_8
+
+//#define PID_TIME_INTERVAL (uint16_t)50
+//#define TIMER_PRESCALE Timer0_Prescale_Value_64
+
+//#define PID_TIME_INTERVAL (uint16_t)12
+//#define TIMER_PRESCALE Timer0_Prescale_Value_256
+
+//#define PID_TIME_INTERVAL (uint16_t)3
+//#define TIMER_PRESCALE Timer0_Prescale_Value_1024
 
 /* P, I and D parameter values
  * The K_P_DEFAULT, K_I_DEFAULT and K_D_DEFAULT values (P, I and D gains)
  * need to be modified to adapt to the application at hand
  */
-#define K_P_DEFAULT 1.00
-#define K_I_DEFAULT 0.00
-#define K_D_DEFAULT 0.00
+#define K_P_DEFAULT 0
+#define K_I_DEFAULT 0
+#define K_D_DEFAULT 0
 // #define PID_SCALING_FACTOR 1
 
 #define ANALOG_READ_MIN 0

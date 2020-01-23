@@ -141,8 +141,9 @@ void initPID(void)
 
     ADMUX =
         (0 << ADLAR) | // do not left shift result (for 10-bit values)
-        (0 << REFS1) | // Sets ref. voltage to VCC, bit 1
-        (0 << REFS0) | // Sets ref. voltage to VCC, bit 0
+        (1 << REFS2) | // Sets ref. voltage to 2.56, bit 2
+        (1 << REFS1) | // Sets ref. voltage to 2.56, bit 1
+        (0 << REFS0) | // Sets ref. voltage to 2.56, bit 0
         (1 << MUX0) |  //combined with next line…
         (1 << MUX1);   // sets ADC3 (A3/PB3) as analog input channel
 
@@ -157,7 +158,7 @@ void initPID(void)
     TIMSK |= (1 << TOIE0);
     TCNT0 = 0;
 
-    ToneTimer_ClockSelect(Timer0_Prescale_Value_1024);
+    ToneTimer_ClockSelect(TIMER_PRESCALE);
 
     // Set up timer1; freq, pins
     //TCCR0A = (1 << CS00);
