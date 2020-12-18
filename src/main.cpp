@@ -4,6 +4,7 @@
 
 #include <util/atomic.h>
 #include <avr/io.h>
+#include <ToneTimer.h>
 
 // Parameters for PID regulator
 pidData_t pidData;
@@ -31,13 +32,13 @@ inline void setInput(void)
     if (plantValue > 0 && measurementValue < ANALOG_READ_MAX)
     {
         motor_up(
-            (int16_t)map(plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
+            (int16_t)map(plantValue, 0, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
             &motorData);
     }
     else if (plantValue < 0 && measurementValue > ANALOG_READ_MIN)
     {
         motor_down(
-            (int16_t)map(-plantValue, -MAX_INT, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
+            (int16_t)map(-1 * plantValue, 0, MAX_INT, ANALOG_WRITE_MIN, ANALOG_WRITE_MAX),
             &motorData);
     }
     else
@@ -140,8 +141,9 @@ void initPID(void)
 
     ADMUX =
         (0 << ADLAR) | // do not left shift result (for 10-bit values)
-        (0 << REFS1) | // Sets ref. voltage to VCC, bit 1
-        (0 << REFS0) | // Sets ref. voltage to VCC, bit 0
+        (1 << REFS2) | // Sets ref. voltage to 2.56, bit 2
+        (1 << REFS1) | // Sets ref. voltage to 2.56, bit 1
+        (0 << REFS0) | // Sets ref. voltage to 2.56, bit 0
         (1 << MUX0) |  //combined with next line…
         (1 << MUX1);   // sets ADC3 (A3/PB3) as analog input channel
 
@@ -151,15 +153,21 @@ void initPID(void)
         (1 << ADPS1) | // set prescaler to 128, bit 1
         (0 << ADPS0);  // set prescaler to 128, bit 0
 
-    // Set up timer, enable timer/counter 0 overflow interrupt
+    // Set up timer0, enable timer/counter 0 overflow interrupt
     TCCR0A = (1 << CS00);
     TIMSK |= (1 << TOIE0);
     TCNT0 = 0;
+
+    ToneTimer_ClockSelect(TIMER_PRESCALE);
+
+    // Set up timer1; freq, pins
+    //TCCR0A = (1 << CS00);
+    //TCNT0 = 0;
 }
 
 void initMotor(void)
 {
-    motor_Init(PIN_MOTOR_UP, PIN_MOTOR_DOWN, &motorData);
+    motor_Init(PIN_MOTOR_SPEED, PIN_MOTOR_UP, PIN_MOTOR_DOWN, &motorData);
 }
 
 /*  PID controller
@@ -273,6 +281,10 @@ void loop(void)
 
         case PID_I2C_COMMAND_SET_READ_MODE:
             gFlags.readMode = parameterCopy;
+            break;
+
+        case PID_I2C_COMMAND_SET_DEAD_BAND:
+            pid_Set_deadBand(parameterCopy, &pidData);
             break;
 
         case MOTOR_I2C_COMMAND_HALT:

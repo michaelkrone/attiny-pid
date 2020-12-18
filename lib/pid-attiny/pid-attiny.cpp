@@ -1,5 +1,9 @@
 #include "./pid-attiny.h"
 
+#ifndef abs
+#define abs(a) ((a) < 0 ? -1 * (a) : (a))
+#endif
+
 /* Initialisation of PID controller parameters.
  *
  *  Initialise the variables used by the PID algorithm.
@@ -15,6 +19,7 @@ void pid_Init(int16_t p_factor, int16_t i_factor, int16_t d_factor, struct PID_D
 	values->measurementValue = 0;
 	values->plantValue = 0;
 	pid->lastProcessValue = 0;
+	pid->deadBand = 5;
 	pid_Reset_Integrator(pid);
 	pid_Set_P(p_factor, pid);
 	pid_Set_I(i_factor, pid);
@@ -34,26 +39,30 @@ void pid_Controller(struct PID_VALUES *pid_values, struct PID_DATA *pid_st)
 	// copy volatile vars for processing
 	int16_t referenceValue = pid_values->referenceValue;
 	int16_t measurementValue = pid_values->measurementValue;
-	int16_t error, p_term, d_term;
-	int32_t i_term, ret, temp;
+	int16_t error{0}, p_term{0}, d_term{0};
+	int32_t i_term{0}, ret{0}, temp{0};
 
 	// Calculate Pterm and limit error overflow
 	error = referenceValue - measurementValue;
-	if (error > pid_st->maxError)
-	{
-		p_term = MAX_INT;
-	}
-	else if (error < -pid_st->maxError)
-	{
-		p_term = -MAX_INT;
-	}
-	else
-	{
-		p_term = pid_st->P_Factor * error;
+	if (abs(error) > pid_st->deadBand) {
+		if (error > pid_st->maxError)
+		{
+			p_term = MAX_INT;
+		}
+		else if (error < -pid_st->maxError)
+		{
+			p_term = -MAX_INT;
+		}
+		else
+		{
+			p_term = pid_st->P_Factor * error;
+		}
+
+		d_term = pid_st->D_Factor * (pid_st->lastProcessValue - measurementValue);
+		temp = pid_st->sumError + error;
 	}
 
 	// Calculate Iterm and limit integral runaway
-	temp = pid_st->sumError + error;
 	if (temp > pid_st->maxSumError)
 	{
 		i_term = MAX_I_TERM;
@@ -71,7 +80,6 @@ void pid_Controller(struct PID_VALUES *pid_values, struct PID_DATA *pid_st)
 	}
 
 	// Calculate Dterm
-	d_term = pid_st->D_Factor * (pid_st->lastProcessValue - measurementValue);
 	pid_st->lastProcessValue = measurementValue;
 
 	ret = (p_term + i_term + d_term) / PID_SCALING_FACTOR;
@@ -116,5 +124,11 @@ void pid_Set_I(int16_t i, pidData_t *pid_st)
 void pid_Set_D(int16_t d, pidData_t *pid_st)
 {
 	pid_st->D_Factor = d * PID_SCALING_FACTOR;
+	pid_Reset_Integrator(pid_st);
+}
+
+void pid_Set_deadBand(uint16_t d, pidData_t *pid_st)
+{
+	pid_st->deadBand = d;
 	pid_Reset_Integrator(pid_st);
 }

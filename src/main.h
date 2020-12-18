@@ -7,7 +7,8 @@
 #define I2C_SLAVE_ADDRESS 0x4 // the 7-bit I2C slave address
 
 // PIN_PID_READ default = A3
-#define PIN_MOTOR_UP PB1
+#define PIN_MOTOR_SPEED PB1
+#define PIN_MOTOR_UP PB5
 #define PIN_MOTOR_DOWN PB4
 
 /* Sampling Time Interval
@@ -15,16 +16,30 @@
  * With a 8-bit counter (255 cylces to overflow), the time interval value is calculated as follows:
  * PID_TIME_INTERVAL = ( desired interval [sec] ) * ( frequency [Hz] ) / 255
  */
-#define PID_TIME_INTERVAL 50
+
+//#define PID_TIME_INTERVAL (uint16_t)3200
+//#define TIMER_PRESCALE Timer0_Prescale_Value_1
+
+#define PID_TIME_INTERVAL (uint16_t)400
+#define TIMER_PRESCALE Timer0_Prescale_Value_8
+
+//#define PID_TIME_INTERVAL (uint16_t)50
+//#define TIMER_PRESCALE Timer0_Prescale_Value_64
+
+//#define PID_TIME_INTERVAL (uint16_t)12
+//#define TIMER_PRESCALE Timer0_Prescale_Value_256
+
+//#define PID_TIME_INTERVAL (uint16_t)3
+//#define TIMER_PRESCALE Timer0_Prescale_Value_1024
 
 /* P, I and D parameter values
  * The K_P_DEFAULT, K_I_DEFAULT and K_D_DEFAULT values (P, I and D gains)
  * need to be modified to adapt to the application at hand
  */
-#define K_P_DEFAULT 1.00
-#define K_I_DEFAULT 0.00
-#define K_D_DEFAULT 0.00
-// #define PID_SCALING_FACTOR 128
+#define K_P_DEFAULT 0
+#define K_I_DEFAULT 0
+#define K_D_DEFAULT 0
+// #define PID_SCALING_FACTOR 1
 
 #define ANALOG_READ_MIN 0
 #define ANALOG_READ_MAX 1023
@@ -33,6 +48,10 @@
 
 #ifndef TWI_RX_BUFFER_SIZE
 #define TWI_RX_BUFFER_SIZE (16)
+#endif
+
+#ifndef TWI_TX_BUFFER_SIZE
+#define TWI_TX_BUFFER_SIZE (4)
 #endif
 
 #include "../lib/pid-attiny/pid-attiny.h"

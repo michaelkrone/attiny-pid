@@ -22,6 +22,8 @@
 
 typedef struct MOTOR_DATA
 {
+	// the speed control pin
+	uint8_t speedPin;
 	// the up control pin
 	uint8_t upPin;
 	// the down control pin
@@ -32,12 +34,17 @@ typedef struct MOTOR_DATA
 	uint8_t downValue;
 } motorConfig_t;
 
+#ifndef USE_THREE_PINS
 void motor_Init(uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data);
+#else
+void motor_Init(uint8_t speedPin, uint8_t upPin, uint8_t downPin, struct MOTOR_DATA *data);
+#endif
+
 void motor_up(uint8_t speed, struct MOTOR_DATA *data);
 void motor_down(uint8_t speed, struct MOTOR_DATA *data);
-void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE);
-void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE);
 void motor_stop(struct MOTOR_DATA *data);
 void motor_halt(struct MOTOR_DATA *data);
+void motor_set_upPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE);
+void motor_set_downPin(uint8_t value, struct MOTOR_DATA *data, bool force = FALSE);
 
 #endif

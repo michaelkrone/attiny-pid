@@ -36,6 +36,8 @@ typedef struct PID_DATA
 	int16_t maxError;
 	// Maximum allowed sumerror, avoid overflow
 	int32_t maxSumError;
+	// minumum value the error must exceed
+	uint16_t deadBand;
 } pidData_t;
 
 typedef struct PID_VALUES
@@ -54,5 +56,6 @@ void pid_Reset_Integrator(pidData_t *pid_st);
 void pid_Set_P(int16_t p, pidData_t *pid_st);
 void pid_Set_I(int16_t i, pidData_t *pid_st);
 void pid_Set_D(int16_t d, pidData_t *pid_st);
+void pid_Set_deadBand(uint16_t d, pidData_t *pid_st);
 
 #endif
